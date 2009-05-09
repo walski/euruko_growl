@@ -1,32 +1,18 @@
 require 'rubygems'
-require 'growl'
-require 'twitter'
-require 'daemon.rb'
 require 'open-uri'
-
-class Password
-  FILE_NAME = "#{File.dirname(__FILE__)}/growl_pass.txt"
-  
-  def self.from_file
-    return nil unless File.exists?(FILE_NAME)
-    File.open(FILE_NAME) do |file|
-      return file.gets.strip.chomp
-    end
-  end
-end
+require 'twitter'
+#Gem: http://github.com/visionmedia/growl/tree/master
+require 'growl'
+require 'daemon.rb'
 
 class EurukoTweetObserver < Daemon::Base
   NOTIFICATION_TYPE = "ruby-growl Notification"
-  UPDATE_INTERVAL   = 10 #seconds
+  UPDATE_INTERVAL   = 180 #seconds
   TITLE_PREFIX      = "Euruko Tweet: "
   TMP_DIR           = '/tmp'
   USER_EXCLUSION    = ['euruko_bot']
   
   def self.start
-    growl_pass = Password::from_file
-    args = ["localhost", "Euruko Twitter", ["ruby-growl Notification"]]
-    args += [nil, growl_pass] if growl_pass
-    
     @first_run = true
     @last_tweets = []
     
@@ -35,14 +21,12 @@ class EurukoTweetObserver < Daemon::Base
       Twitter::Search.new('euruko').each {|t| tweets << t unless USER_EXCLUSION.include?(t['from_user'])}
 
       unless @first_run
-        filter_new_feeds(tweets).each do |tweet|
-          growl_tweet(tweet)
-        end
+        filter_new_feeds(tweets).each {|tweet| growl_tweet(tweet)}
       else
         growl_tweet(tweets.first) if tweets.first
       end
       
-      @first_run = false
+      @first_run    = false
       @last_tweets += tweets
       sleep UPDATE_INTERVAL
     end
