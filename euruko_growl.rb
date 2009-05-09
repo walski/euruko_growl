@@ -2,41 +2,52 @@ require 'rubygems'
 require 'open-uri'
 require 'twitter'
 #Gem: http://github.com/visionmedia/growl/tree/master
-require 'growl'
+# require 'growl'
+require 'growl.rb'
 require 'daemon.rb'
 
 class EurukoTweetObserver < Daemon::Base
   NOTIFICATION_TYPE = "ruby-growl Notification"
-  UPDATE_INTERVAL   = 60 #seconds
+  UPDATE_INTERVAL   = 10 #seconds
   TITLE_PREFIX      = "Euruko Tweet: "
   TMP_DIR           = '/tmp'
   USER_EXCLUSION    = ['euruko_bot']
   
   def self.start
+    @growl_engine = GrowlEngine.new
+    growl("Starting up", "Hi. I will start to collecting euruko tweets for you.")
     @first_run = true
     @last_tweets = []
     
     loop do
       tweets = []
       Twitter::Search.new('euruko').each {|t| tweets << t unless USER_EXCLUSION.include?(t['from_user'])}
+      
+      filtered_tweets = filter_new_feeds(tweets)
+      
       if @first_run
         growl_tweet(tweets.first) if tweets.first
       else
-        filter_new_feeds(tweets).each {|tweet| growl_tweet(tweet)}
+        filtered_tweets.each {|tweet| growl_tweet(tweet)}
       end
       
       @first_run    = false
-      @last_tweets += tweets
+      @last_tweets += filtered_tweets
       sleep UPDATE_INTERVAL
     end
   end
 
   def self.stop
-    Growl.notify "Bye!", :title => "#{TITLE_PREFIX}Exiting"
+    growl("Exiting", "Bye!")
   end
   
   def self.growl_tweet(tweet)
-    Growl.notify tweet['text'], :icon => user_image(tweet), :title => "#{TITLE_PREFIX}#{tweet['from_user']}"
+    growl(tweet['from_user'], tweet['text'], user_image(tweet))
+  end
+  
+  def self.growl(title, body, icon = nil)
+    @growl_engine.notify(title, body, icon)
+    sleep 1
   end
   
   def self.filter_new_feeds(tweets)
