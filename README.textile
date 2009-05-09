@@ -1,10 +1,13 @@
 h2. Euruko Growl
+
 Brings you all tweetc containing the term "euruko" to Growl for the ones of us
 still using twitter through the web interface and not with some full flexed 
 client.
 
 h2. What do I need?
-Install gems:
+
+h3. Install gems:
+
   gem sources -a http://gems.github.com
   sudo gem install twitter
   sudo gem install visionmedia-growl
@@ -12,7 +15,9 @@ Install gems:
 h2. Usage
 
 h3. Start
+
   ruby euruko_growl.rb start
 
 h3. Stop
+
   ruby euruko_growl.rb stop
