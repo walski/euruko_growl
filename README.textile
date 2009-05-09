@@ -6,11 +6,17 @@ client.
 
 h2. What do I need?
 
-h3. Install gems:
+h3. Install gems
 
-  gem sources -a http://gems.github.com
   sudo gem install twitter
-  sudo gem install visionmedia-growl
+  sudo gem install ruby-growl
+  
+h3. Setup Growl
+
+Go to the System Preferences and accept incoming notifications. You can set a
+password there, too. If you do so create a file called growl_pass.txt in the
+same directory where the growl.rb lives in and fill it with your password - 
+nothing else allowed here! No white-spaces or new lines... NOTHING!
 
 h2. Usage
 

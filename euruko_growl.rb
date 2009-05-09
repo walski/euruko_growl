@@ -1,8 +1,6 @@
 require 'rubygems'
 require 'open-uri'
 require 'twitter'
-#Gem: http://github.com/visionmedia/growl/tree/master
-# require 'growl'
 require 'growl.rb'
 require 'daemon.rb'
 
