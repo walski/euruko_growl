@@ -7,7 +7,7 @@ require 'daemon.rb'
 
 class EurukoTweetObserver < Daemon::Base
   NOTIFICATION_TYPE = "ruby-growl Notification"
-  UPDATE_INTERVAL   = 180 #seconds
+  UPDATE_INTERVAL   = 60 #seconds
   TITLE_PREFIX      = "Euruko Tweet: "
   TMP_DIR           = '/tmp'
   USER_EXCLUSION    = ['euruko_bot']
@@ -19,11 +19,10 @@ class EurukoTweetObserver < Daemon::Base
     loop do
       tweets = []
       Twitter::Search.new('euruko').each {|t| tweets << t unless USER_EXCLUSION.include?(t['from_user'])}
-
-      unless @first_run
-        filter_new_feeds(tweets).each {|tweet| growl_tweet(tweet)}
-      else
+      if @first_run
         growl_tweet(tweets.first) if tweets.first
+      else
+        filter_new_feeds(tweets).each {|tweet| growl_tweet(tweet)}
       end
       
       @first_run    = false
